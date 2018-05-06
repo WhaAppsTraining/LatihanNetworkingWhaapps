@@ -8,10 +8,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+
 import java.util.List;
 
+import jp.wasabeef.glide.transformations.MaskTransformation;
 import sembarang.latihannetworking.R;
 import sembarang.latihannetworking.model.Movie;
+import sembarang.latihannetworking.network.UrlComposer;
 
 /**
  * @author hendrawd on 06/05/18
@@ -73,15 +78,22 @@ public class MovieAdapter extends
         }
 
         private void bind(Movie movie) {
+            String posterUrl = UrlComposer.getPosterUrl(
+                    movie.getPosterPath()
+            );
+
+            RequestOptions requestOptions =
+                    new RequestOptions()
+                            .centerCrop()
+                            .bitmapTransform(
+                                    new MaskTransformation(R.drawable.mask_starfish)
+                            );
+
             // load image dari url dengan menggunakan glide
-            // Glide.with(itemView.getContext())
-            //         .load(
-            //                 UrlComposer.getPosterUrl(
-            //                         movie.getPosterPath()
-            //                 )
-            //         )
-            //         .into(ivPoster);
-            ivPoster.setImageResource(R.mipmap.ic_launcher);
+            Glide.with(itemView.getContext())
+                    .load(posterUrl)
+                    .apply(requestOptions)
+                    .into(ivPoster);
 
             // set texts
             tvTitle.setText(movie.getTitle());
