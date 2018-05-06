@@ -3,8 +3,9 @@ package sembarang.latihannetworking;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.List;
 
 import retrofit2.Call;
@@ -37,22 +38,66 @@ public class MainActivity extends AppCompatActivity implements Callback<MovieRes
 
         // Kenapa implement interface daripada memakai anonymous class?
         // Berasal dari buku Effective Java, Item 5: Avoid creating unnecessary objects
-        mCall.enqueue(MainActivity.this);
+        // request secara asynchronous
+        // mCall.enqueue(MainActivity.this);
+
+        // request secara synchronous
+        // harus menggunakan thread lain
+        // tidak bisa jalan di main thread
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Response<MovieResponse> response = mCall.execute();
+                    final MovieResponse movieResponse = response.body();
+                    MainActivity.this.runOnUiThread(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    showMovies(movieResponse);
+                                }
+                            }
+                    );
+                    // atau
+                    // new Handler(getMainLooper()).post(new Runnable() {
+                    //     @Override
+                    //     public void run() {
+                    //         showMovies(movieResponse);
+                    //     }
+                    // });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     @Override
     public void onResponse(@NonNull Call<MovieResponse> call, @NonNull Response<MovieResponse> response) {
         MovieResponse movieResponse = response.body();
+        showMovies(movieResponse);
+    }
+
+    private void showMovies(MovieResponse movieResponse) {
+        TextView textView = findViewById(R.id.tv);
         if (movieResponse != null) {
             List<Movie> movieList = movieResponse.getResults();
+            // jangan memakan string concatenation di dalam loop
+            // karena penggunaan memory lebih besar, dan performa lebih jelek
+            StringBuilder stringBuilder = new StringBuilder();
             for (Movie movie : movieList) {
-                Log.d("MovieName", movie.getTitle());
+                // Log.d("MovieName", movie.getTitle());
+                // method chaining
+                stringBuilder
+                        .append(movie.getTitle())
+                        .append("\n");
             }
+            textView.setText(stringBuilder.toString());
         }
     }
 
     @Override
-    public void onFailure(Call<MovieResponse> call, Throwable t) {
+    public void onFailure(@NonNull Call<MovieResponse> call, @NonNull Throwable t) {
 
     }
 
