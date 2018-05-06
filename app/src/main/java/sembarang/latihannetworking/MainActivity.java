@@ -3,7 +3,8 @@ package sembarang.latihannetworking;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.TextView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 
 import java.io.IOException;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import sembarang.latihannetworking.adapter.MovieAdapter;
 import sembarang.latihannetworking.model.Movie;
 import sembarang.latihannetworking.model.MovieResponse;
 import sembarang.latihannetworking.network.MovieService;
@@ -79,20 +81,27 @@ public class MainActivity extends AppCompatActivity implements Callback<MovieRes
     }
 
     private void showMovies(MovieResponse movieResponse) {
-        TextView textView = findViewById(R.id.tv);
         if (movieResponse != null) {
             List<Movie> movieList = movieResponse.getResults();
             // jangan memakan string concatenation di dalam loop
             // karena penggunaan memory lebih besar, dan performa lebih jelek
-            StringBuilder stringBuilder = new StringBuilder();
-            for (Movie movie : movieList) {
-                // Log.d("MovieName", movie.getTitle());
-                // method chaining
-                stringBuilder
-                        .append(movie.getTitle())
-                        .append("\n");
-            }
-            textView.setText(stringBuilder.toString());
+            // mendapatkan reference dari recyclerview di layout xml
+            RecyclerView recyclerView = findViewById(R.id.recyclerView);
+
+            // membuat layout manager yang akan digunakan untuk
+            // RecyclerView
+            LinearLayoutManager linearLayoutManager =
+                    new LinearLayoutManager(this);
+
+            // set layout manager yang sudah dibikin di atas
+            // ke RecyclerView
+            recyclerView.setLayoutManager(linearLayoutManager);
+
+            // membuat adapter
+            MovieAdapter movieAdapter = new MovieAdapter(movieList);
+
+            // set adapter ke RecyclerView
+            recyclerView.setAdapter(movieAdapter);
         }
     }
 
