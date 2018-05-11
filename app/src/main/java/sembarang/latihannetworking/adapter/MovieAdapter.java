@@ -13,7 +13,7 @@ import com.bumptech.glide.request.RequestOptions;
 
 import java.util.List;
 
-import jp.wasabeef.glide.transformations.MaskTransformation;
+import jp.wasabeef.glide.transformations.gpu.SketchFilterTransformation;
 import sembarang.latihannetworking.R;
 import sembarang.latihannetworking.model.Movie;
 import sembarang.latihannetworking.network.UrlComposer;
@@ -82,17 +82,12 @@ public class MovieAdapter extends
                     movie.getPosterPath()
             );
 
-            RequestOptions requestOptions =
-                    new RequestOptions()
-                            .centerCrop()
-                            .bitmapTransform(
-                                    new MaskTransformation(R.drawable.mask_starfish)
-                            );
-
             // load image dari url dengan menggunakan glide
             Glide.with(itemView.getContext())
                     .load(posterUrl)
-                    .apply(requestOptions)
+                    .apply(RequestOptions.bitmapTransform(
+                            new SketchFilterTransformation()
+                    ))
                     .into(ivPoster);
 
             // set texts

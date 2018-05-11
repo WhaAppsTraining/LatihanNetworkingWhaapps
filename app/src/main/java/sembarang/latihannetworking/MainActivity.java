@@ -7,7 +7,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import java.io.IOException;
 import java.util.List;
 
 import retrofit2.Call;
@@ -21,14 +20,15 @@ import sembarang.latihannetworking.network.ServiceGenerator;
 
 public class MainActivity extends AppCompatActivity implements Callback<MovieResponse> {
 
+    private static final String CATEGORY_POPULAR = "popular";
+    private static final String CATEGORY_TOP_RATED = "top_rated";
     private Call<MovieResponse> mCall;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // requestMovieList("popular");
-        requestMovieList("top_rated");
+        requestMovieList(CATEGORY_POPULAR);
     }
 
     /**
@@ -42,37 +42,37 @@ public class MainActivity extends AppCompatActivity implements Callback<MovieRes
         // Kenapa implement interface daripada memakai anonymous class?
         // Berasal dari buku Effective Java, Item 5: Avoid creating unnecessary objects
         // request secara asynchronous
-        // mCall.enqueue(MainActivity.this);
+        mCall.enqueue(MainActivity.this);
 
         // request secara synchronous
         // harus menggunakan thread lain
         // tidak bisa jalan di main thread
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Response<MovieResponse> response = mCall.execute();
-                    final MovieResponse movieResponse = response.body();
-                    MainActivity.this.runOnUiThread(
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    showMovies(movieResponse);
-                                }
-                            }
-                    );
-                    // atau
-                    // new Handler(getMainLooper()).post(new Runnable() {
-                    //     @Override
-                    //     public void run() {
-                    //         showMovies(movieResponse);
-                    //     }
-                    // });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+        // new Thread(new Runnable() {
+        //     @Override
+        //     public void run() {
+        //         try {
+        //             Response<MovieResponse> response = mCall.execute();
+        //             final MovieResponse movieResponse = response.body();
+        //             MainActivity.this.runOnUiThread(
+        //                     new Runnable() {
+        //                         @Override
+        //                         public void run() {
+        //                             showMovies(movieResponse);
+        //                         }
+        //                     }
+        //             );
+        //             // atau
+        //             // new Handler(getMainLooper()).post(new Runnable() {
+        //             //     @Override
+        //             //     public void run() {
+        //             //         showMovies(movieResponse);
+        //             //     }
+        //             // });
+        //         } catch (IOException e) {
+        //             e.printStackTrace();
+        //         }
+        //     }
+        // }).start();
     }
 
     @Override

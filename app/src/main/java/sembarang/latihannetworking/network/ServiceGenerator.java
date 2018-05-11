@@ -1,6 +1,7 @@
 package sembarang.latihannetworking.network;
 
 import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -13,7 +14,11 @@ public class ServiceGenerator {
 
     private static OkHttpClient.Builder sHttpClient =
             new OkHttpClient.Builder()
-                    .addInterceptor(new ApiKeyAdderInterceptor());
+                    .addInterceptor(new ApiKeyAdderInterceptor())
+                    .addInterceptor(
+                            new HttpLoggingInterceptor().
+                                    setLevel(HttpLoggingInterceptor.Level.BODY)
+                    );
 
     private static Retrofit.Builder sBuilder =
             new Retrofit.Builder()
